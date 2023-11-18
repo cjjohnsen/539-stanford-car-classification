@@ -82,12 +82,13 @@ else:
             # Get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
             inputs = inputs.to(device)
+            labels = labels.to(device)
 
             # Zero the parameter gradients
             optimizer.zero_grad()
 
             # Forward pass
-            outputs = model(inputs)
+            outputs = model(inputs).to(device)
             loss = criterion(outputs, labels.reshape((-1)))
             
             # Backward pass and optimize
@@ -132,8 +133,10 @@ class_total = list(0. for i in range(len(classes)))
 with torch.no_grad():
     for data in test_loader:
         images, labels = data
+        images = images.to(device)
+        labels = labels.to(device)
         # Forward pass
-        outputs = model(images)
+        outputs = model(images).to(device)
         labels = labels.reshape((-1))
         loss = criterion(outputs, labels)
         test_loss += loss.item()*images.size(0)
