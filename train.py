@@ -99,7 +99,7 @@ else:
         losses.append(running_loss)
 
     # save graph and model every 25 epochs
-    if (epoch+1) % 50 == 0:
+    if (epoch+1) % 25 == 0:
         plt.figure()
         plt.plot(losses, marker='o', linestyle='-', color='blue')
         plt.title('Training Loss per Epoch')
