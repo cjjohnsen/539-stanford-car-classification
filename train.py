@@ -54,10 +54,10 @@ model.classifier[6] = nn.Linear(4096, len(classes))
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.0025)
 
 train_dataset = TensorDataset(train_images, train_labels)
-batch_size = 64
+batch_size = 128
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 num_epochs = 200 # This can be adjusted
@@ -101,19 +101,20 @@ else:
         print(f'Epoch {epoch + 1}: loss={avg_loss:.3f}')
         losses.append(avg_loss)
 
-    # save graph and model every 25 epochs
-    if (epoch+1) % 25 == 0:
-        plt.figure()
-        plt.plot(losses, marker='o', linestyle='-', color='blue')
-        plt.title('Training Loss per Epoch')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.grid(True)
-        plt.xticks(range(len(losses)), range(1, len(losses) + 1))  # Set epoch numbers starting from 1
-        plt.savefig(f'./data/train_loss_{epoch}.png', bbox_inches='tight')
+        # save graph and model every 25 epochs
+        if (epoch+1) % 25 == 0:
+            plt.figure()
+            plt.plot(losses, marker='o', linestyle='-', color='blue')
+            plt.title('Training Loss per Epoch')
+            plt.xlabel('Epoch')
+            plt.ylabel('Loss')
+            plt.grid(True)
+            plt.xticks(range(len(losses)), range(1, len(losses) + 1))  # Set epoch numbers starting from 1
+            plt.savefig(f'./data/train_loss_{epoch}.png', bbox_inches='tight')
 
-        torch.save(model.state_dict(), f'./data/model_{epoch}.pth')
-        print('Finished training new model.')
+            torch.save(model.state_dict(), f'./data/model_{epoch}.pth')
+            print('Saved checkpoint model.')
+    print('Finished training new model.')
 
 print('Evaluating...')
 model.eval()
