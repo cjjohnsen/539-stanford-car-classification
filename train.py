@@ -49,8 +49,15 @@ def create_mappings():
 
 create_mappings()
 
-model = models.alexnet(weights=None)        # Could change in the future based on training speed/accuracy
+model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
 model.classifier[6] = nn.Linear(4096, len(classes))
+
+# freeze all but classifier
+for p in model.parameters():
+    p.requires_grad = False
+for p in model.classifier.parameters():
+    p.requires_grad = True
+
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
