@@ -23,9 +23,23 @@ def load_stanford_cars_dataset(data_folder):
     # Load annotations
     annotations = scipy.io.loadmat(annotations_path)
 
-    transform = transforms.Compose([
-        transforms.Resize((227, 227)),  # Resize the image to 224x224
-        transforms.ToTensor()            # Convert the image to a PyTorch tensor
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(size=(227, 227), scale=(0.5, 1)),
+        transforms.RandomHorizontalFlip(0.5),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
+    ])
+
+    test_transform = transforms.Compose([
+        transforms.Resize((227, 227)),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
     ])
 
     # Preparing training and testing data
@@ -55,13 +69,13 @@ def load_stanford_cars_dataset(data_folder):
         if not testing:
             corrected_path = os.path.join(train_folder, img_name)
             image = Image.open(corrected_path).convert('RGB')
-            tensor_image = transform(image)
+            tensor_image = train_transform(image)
             train_images.append(tensor_image)
             train_labels.append(label)
         else:
             corrected_path = os.path.join(test_folder, img_name)
             image = Image.open(corrected_path).convert('RGB')
-            tensor_image = transform(image)
+            tensor_image = test_transform(image)
             test_images.append(tensor_image)
             test_labels.append(label)
         i += 1

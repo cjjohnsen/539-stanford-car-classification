@@ -60,7 +60,7 @@ train_dataset = TensorDataset(train_images, train_labels)
 batch_size = 64
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-num_epochs = 3 # This can be adjusted
+num_epochs = 200 # This can be adjusted
 
 print('Starting training')
 
@@ -98,17 +98,19 @@ else:
         print(f'Epoch {epoch + 1}: loss={running_loss:.3f}')
         losses.append(running_loss)
 
-    plt.figure()
-    plt.plot(losses, marker='o', linestyle='-', color='blue')
-    plt.title('Training Loss per Epoch')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.grid(True)
-    plt.xticks(range(len(losses)), range(1, len(losses) + 1))  # Set epoch numbers starting from 1
-    plt.savefig('./data/train_loss.png', bbox_inches='tight')
+    # save graph and model every 25 epochs
+    if (epoch+1) % 50 == 0:
+        plt.figure()
+        plt.plot(losses, marker='o', linestyle='-', color='blue')
+        plt.title('Training Loss per Epoch')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.grid(True)
+        plt.xticks(range(len(losses)), range(1, len(losses) + 1))  # Set epoch numbers starting from 1
+        plt.savefig(f'./data/train_loss_{epoch}.png', bbox_inches='tight')
 
-    torch.save(model.state_dict(), './data/model.pth')
-    print('Finished training new model.')
+        torch.save(model.state_dict(), f'./data/model_{epoch}.pth')
+        print('Finished training new model.')
 
 print('Evaluating...')
 model.eval()
