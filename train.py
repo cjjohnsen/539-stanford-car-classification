@@ -76,7 +76,9 @@ else:
         running_loss = 0.0
 
         # Iterate over the data
+        n = 0
         for i, data in enumerate(train_loader, 0):
+            n+=1
             # Get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
             inputs = inputs.to(device)
@@ -95,8 +97,9 @@ else:
             # Print statistics
             running_loss += loss.item()
         # Print loss
-        print(f'Epoch {epoch + 1}: loss={running_loss:.3f}')
-        losses.append(running_loss)
+        avg_loss = running_loss / n
+        print(f'Epoch {epoch + 1}: loss={avg_loss:.3f}')
+        losses.append(avg_loss)
 
     # save graph and model every 25 epochs
     if (epoch+1) % 25 == 0:
