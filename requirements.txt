@@ -2,8 +2,5 @@ torch
 torchvision
 numpy
 matplotlib
-sklearn
+scikit-learn
 requests
-zipfile
-PIL
-download_data
