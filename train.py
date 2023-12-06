@@ -45,10 +45,10 @@ if pretrained:
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.002)
+optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=5e-4)
 
 num_epochs = 1000 # This can be adjusted
-save_model_every = 25
+save_model_every = 10
 
 def save_loss_plot(losses, test_losses, epoch, file_path='./data'):
     plt.figure()
@@ -60,6 +60,18 @@ def save_loss_plot(losses, test_losses, epoch, file_path='./data'):
     plt.legend()
     plt.grid(True)
     plt.savefig(os.path.join(file_path, f'train_test_loss_{epoch+1}.png'), bbox_inches='tight')
+    plt.close()
+
+def save_accuracy_plot(accuracies, test_accuracies, epoch, file_path='./data'):
+    plt.figure()
+    plt.plot(losses, color='blue', label='Train Accuracy')
+    plt.plot(test_losses, color='red', label='Test Accuracy')
+    plt.title('Training and Test Accuracy per Epoch')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(os.path.join(file_path, f'train_test_accuracy_{epoch+1}.png'), bbox_inches='tight')
     plt.close()
 
 print('Starting training')
@@ -78,12 +90,15 @@ else:
     print("Training new model...")
     losses = []
     test_losses = []
+    accuracies = []
+    test_accuracies = []
     # Loop over the dataset multiple times
 
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20], gamma=0.5)
     for epoch in range(num_epochs):
         running_loss = 0.0
         test_loss = 0.0
+        test_acc = 0.0
 
         # Training phase
         model.train()
@@ -96,6 +111,8 @@ else:
             # Forward pass
             outputs = model(inputs)
             loss = criterion(outputs, labels.view(-1))
+            acc = (outputs.argmax(-1) == labels).float().mean()
+            accuracies.append(acc.detach().item())
 
             # Backward pass and optimize
             loss.backward()
@@ -117,9 +134,15 @@ else:
                 loss = criterion(outputs, labels.view(-1))
                 test_loss += loss.item()
 
+                acc = (outputs.argmax(-1) == labels).float().mean()
+                test_acc += acc.detach().item()
+
         # Calculate and print test loss
         avg_test_loss = test_loss / len(test_loader)
         test_losses.append(avg_test_loss)
+
+        avg_test_acc = test_loss / len(test_loader)
+        test_accuracies.append(avg_test_acc)
 
         print(f'Epoch {epoch + 1}: train loss={avg_loss:.3f}, test loss={avg_test_loss:.3f}')
 
