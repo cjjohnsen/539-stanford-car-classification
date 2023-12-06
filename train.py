@@ -1,135 +1,123 @@
 import torch
-import scipy.io
 from torchvision import models
-from torch.utils.data import DataLoader
 import os
-from process_data import load_stanford_cars_dataset
 import torch.optim as optim
 import torch.nn as nn
-from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
+from download_data import SC_ZIP_URL, download_and_extract_zip, get_classes_by_make_and_year
+from load import get_data_loaders
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+if(device == 'cuda:0'): print('CUDA available, training will be on GPU.')
 
-if not os.path.exists('./data/tensors/train_images.pt') or not os.path.exists('./data/tensors/train_labels.pt') or not os.path.exists('./data/tensors/test_images.pt') or not os.path.exists('./data/tensors/test_labels.pt'):
-    print('One or more data tensors not found, tensors will be loaded.')
-    load_stanford_cars_dataset('./data')
+root = './data'
+train_root = f'{root}/car_data/train'
+test_root = f'{root}/car_data/test'
 
-# load dataset from stored tensors
-# make sure to run download_data.py and process_data.py (in that order)
-# before running this script
-train_images = torch.load('./data/tensors/train_images.pt')
-train_labels = torch.load('./data/tensors/train_labels.pt')
-test_images = torch.load('./data/tensors/test_images.pt')
-test_labels = torch.load('./data/tensors/test_labels.pt')
+if not os.path.exists(train_root) or not os.path.exists(test_root):
+    download_and_extract_zip(SC_ZIP_URL, root)
 
-# Map old classes (make, model, and year) to new classes (make and year)
-classes = []
-mappings = {}
+classes = get_classes_by_make_and_year(root)
 
-def create_mappings():
-    annotations_path = "./data/cars_annos.mat"
-    annotations = scipy.io.loadmat(annotations_path)
+batch_size = 64
+workers = 4
+train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
-    for i, class_name in enumerate(annotations["class_names"][0]):
-        name = class_name[0]
-        new_class_name = name.split(' ')[0] + ' ' + name.split(' ')[-1]
-        if new_class_name not in classes:
-            classes.append(new_class_name)
-            mappings[i] = len(classes)-1
-        else:
-            mappings[i] = classes.index(new_class_name)
+n_class = len(classes)
 
-    for i, label in enumerate(train_labels):
-        train_labels[i] = torch.tensor([mappings[int(label) - 1]])
-
-    for i, label in enumerate(test_labels):
-        test_labels[i] = torch.tensor([mappings[int(label) - 1]])
-
-create_mappings()
-
-model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
-model.classifier[6] = nn.Linear(4096, len(classes))
-
-# freeze all but classifier
-for p in model.parameters():
-    p.requires_grad = False
-for p in model.classifier.parameters():
-    p.requires_grad = True
+model = models.alexnet(weights=None)
+model.classifier[6] = nn.Linear(4096, n_class)
 
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.0025)
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
-train_dataset = TensorDataset(train_images, train_labels)
-batch_size = 128
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+num_epochs = 1000 # This can be adjusted
+save_model_every = 25
 
-num_epochs = 200 # This can be adjusted
+def save_loss_plot(losses, test_losses, epoch, file_path='./data'):
+    plt.figure()
+    plt.plot(losses, color='blue', label='Train Loss')
+    plt.plot(test_losses, color='red', label='Test Loss')
+    plt.title('Training and Test Loss per Epoch')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(os.path.join(file_path, f'train_test_loss_{epoch+1}.png'), bbox_inches='tight')
+    plt.close()
 
 print('Starting training')
 
-model_path = './data/model.pth'
+save_path = f'{root}/models'
+model_path = f'{save_path}/model.pth'
+
+if not os.path.exists(save_path):
+    os.system(f'mkdir {save_path}')
+
+
 if os.path.exists(model_path):
     print("Loading saved model...")
     model.load_state_dict(torch.load(model_path))
 else:
     print("Training new model...")
     losses = []
+    test_losses = []
     # Loop over the dataset multiple times
     for epoch in range(num_epochs):
         running_loss = 0.0
+        test_loss = 0.0
 
-        # Iterate over the data
-        n = 0
-        for i, data in enumerate(train_loader, 0):
-            n+=1
-            # Get the inputs; data is a list of [inputs, labels]
-            inputs, labels = data
-            inputs = inputs.to(device)
-            labels = labels.to(device)
+        # Training phase
+        model.train()
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
 
             # Zero the parameter gradients
             optimizer.zero_grad()
 
             # Forward pass
-            outputs = model(inputs).to(device)
-            loss = criterion(outputs, labels.reshape((-1)))
-            
+            outputs = model(inputs)
+            loss = criterion(outputs, labels.view(-1))
+
             # Backward pass and optimize
             loss.backward()
             optimizer.step()
 
             # Print statistics
             running_loss += loss.item()
-        # Print loss
-        avg_loss = running_loss / n
-        print(f'Epoch {epoch + 1}: loss={avg_loss:.3f}')
+
+        # Print training loss
+        avg_loss = running_loss / len(train_loader)
         losses.append(avg_loss)
 
-        # save graph and model every 25 epochs
-        if (epoch+1) % 25 == 0:
-            plt.figure()
-            plt.plot(losses, marker='o', linestyle='-', color='blue')
-            plt.title('Training Loss per Epoch')
-            plt.xlabel('Epoch')
-            plt.ylabel('Loss')
-            plt.grid(True)
-            plt.xticks(range(len(losses)), range(1, len(losses) + 1))  # Set epoch numbers starting from 1
-            plt.savefig(f'./data/train_loss_{epoch}.png', bbox_inches='tight')
+        # Validation phase
+        model.eval()
+        with torch.no_grad():
+            for inputs, labels in test_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, labels.view(-1))
+                test_loss += loss.item()
 
-            torch.save(model.state_dict(), f'./data/model_{epoch}.pth')
+        # Calculate and print test loss
+        avg_test_loss = test_loss / len(test_loader)
+        test_losses.append(avg_test_loss)
+
+        print(f'Epoch {epoch + 1}: train loss={avg_loss:.3f}, test loss={avg_test_loss:.3f}')
+
+        # Save graph and model periodically
+        if (epoch + 1) % save_model_every == 0:
+            save_loss_plot(losses, test_losses, epoch, save_path)
+            torch.save(model.state_dict(), os.path.join(save_path, f'model_{epoch+1}.pth'))
             print('Saved checkpoint model.')
+
     print('Finished training new model.')
 
 print('Evaluating...')
 model.eval()
-
-# Load test data
-test_dataset = TensorDataset(test_images, test_labels)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, drop_last=True, shuffle=True)
 
 # Initialize lists to monitor test accuracy and loss
 test_loss = 0.0
