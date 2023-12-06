@@ -45,7 +45,7 @@ if pretrained:
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 num_epochs = 1000 # This can be adjusted
 save_model_every = 25
