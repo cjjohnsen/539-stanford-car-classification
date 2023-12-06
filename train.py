@@ -45,7 +45,7 @@ if pretrained:
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.002)
 
 num_epochs = 1000 # This can be adjusted
 save_model_every = 25
@@ -79,6 +79,8 @@ else:
     losses = []
     test_losses = []
     # Loop over the dataset multiple times
+
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20], gamma=0.5)
     for epoch in range(num_epochs):
         running_loss = 0.0
         test_loss = 0.0
@@ -126,6 +128,8 @@ else:
             save_loss_plot(losses, test_losses, epoch, save_path)
             torch.save(model.state_dict(), os.path.join(save_path, f'model_{epoch+1}.pth'))
             print('Saved checkpoint model.')
+
+        scheduler.step()
 
     print('Finished training new model.')
 
