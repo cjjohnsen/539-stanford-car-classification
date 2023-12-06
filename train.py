@@ -10,6 +10,7 @@ from load import get_data_loaders
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 if(device == 'cuda:0'): print('CUDA available, training will be on GPU.')
+else: print('Training on CPU')
 
 root = './data'
 train_root = f'{root}/car_data/train'
