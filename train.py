@@ -120,6 +120,7 @@ else:
 
             # Print statistics
             running_loss += loss.item()
+            running_acc += acc.item()
 
         # Print training loss
         avg_loss = running_loss / len(train_loader)
@@ -144,7 +145,7 @@ else:
         avg_test_loss = test_loss / len(test_loader)
         test_losses.append(avg_test_loss)
 
-        avg_test_acc = test_loss / len(test_loader)
+        avg_test_acc = test_acc / len(test_loader)
         test_accuracies.append(avg_test_acc)
 
         print(f'Epoch {epoch + 1}: train loss={avg_loss:.3f}, test loss={avg_test_loss:.3f}, train acc={avg_acc:.3f}, test acc={avg_test_acc:.3f}')
