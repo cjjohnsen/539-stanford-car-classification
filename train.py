@@ -97,6 +97,7 @@ else:
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20], gamma=0.5)
     for epoch in range(num_epochs):
         running_loss = 0.0
+        running_acc = 0.0
         test_loss = 0.0
         test_acc = 0.0
 
@@ -112,7 +113,6 @@ else:
             outputs = model(inputs)
             loss = criterion(outputs, labels.view(-1))
             acc = (outputs.argmax(-1) == labels).float().mean()
-            accuracies.append(acc.detach().item())
 
             # Backward pass and optimize
             loss.backward()
@@ -124,6 +124,9 @@ else:
         # Print training loss
         avg_loss = running_loss / len(train_loader)
         losses.append(avg_loss)
+
+        avg_acc = running_acc / len(train_loader)
+        accuracies.append(avg_acc)
 
         # Validation phase
         model.eval()
@@ -144,7 +147,7 @@ else:
         avg_test_acc = test_loss / len(test_loader)
         test_accuracies.append(avg_test_acc)
 
-        print(f'Epoch {epoch + 1}: train loss={avg_loss:.3f}, test loss={avg_test_loss:.3f}')
+        print(f'Epoch {epoch + 1}: train loss={avg_loss:.3f}, test loss={avg_test_loss:.3f}, train acc={avg_acc:.3f}, test acc={avg_test_acc:.3f}')
 
         # Save graph and model periodically
         if (epoch + 1) % save_model_every == 0:
