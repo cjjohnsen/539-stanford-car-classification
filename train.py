@@ -12,6 +12,8 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 if(device == 'cuda:0'): print('CUDA available, training will be on GPU.')
 else: print('Training on CPU')
 
+pretrained = True
+
 root = './data'
 train_root = f'{root}/car_data/train'
 test_root = f'{root}/car_data/test'
@@ -27,8 +29,18 @@ train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_wo
 
 n_class = len(classes)
 
-model = models.alexnet(weights=None)
+if pretrained: 
+    model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
+else: 
+    model = models.alexnet(weights=None)
+
 model.classifier[6] = nn.Linear(4096, n_class)
+
+if pretrained:
+    for p in model.parameters():
+        p.requires_grad = False
+    for p in model.classifier.parameters():
+        p.requires_grad = True
 
 model = model.to(device)
 
