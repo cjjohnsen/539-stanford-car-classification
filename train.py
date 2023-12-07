@@ -23,7 +23,7 @@ if not os.path.exists(train_root) or not os.path.exists(test_root):
 
 classes = get_classes_by_make_and_year(root)
 
-batch_size = 64
+batch_size = 16
 workers = 4
 train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
@@ -94,7 +94,7 @@ else:
     test_accuracies = []
     # Loop over the dataset multiple times
 
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,50], gamma=0.5)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,40,80], gamma=0.5)
     for epoch in range(num_epochs):
         running_loss = 0.0
         running_acc = 0.0
@@ -184,7 +184,7 @@ with torch.no_grad():
         
         # Compare predictions to true label
         correct = (predicted == labels).squeeze()
-        for i in range(len(labels)):
+        for i in range(len(labels)):    # This was iterating over batch_size before, not sure why?
             label = labels[i]
             class_correct[label] += correct[i].item()
             class_total[label] += 1
