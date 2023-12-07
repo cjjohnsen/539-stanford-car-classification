@@ -23,7 +23,7 @@ if not os.path.exists(train_root) or not os.path.exists(test_root):
 
 classes = get_classes_by_make_and_year(root)
 
-batch_size = 16
+batch_size = 32
 workers = 4
 train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
