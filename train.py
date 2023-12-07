@@ -153,6 +153,7 @@ else:
         # Save graph and model periodically
         if (epoch + 1) % save_model_every == 0:
             save_loss_plot(losses, test_losses, epoch, save_path)
+            save_accuracy_plot(accuracies, test_accuracies, epoch, save_path)
             torch.save(model.state_dict(), os.path.join(save_path, f'model_{epoch+1}.pth'))
             print('Saved checkpoint model.')
 
