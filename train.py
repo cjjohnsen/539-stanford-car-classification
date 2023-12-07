@@ -184,7 +184,7 @@ with torch.no_grad():
         
         # Compare predictions to true label
         correct = (predicted == labels).squeeze()
-        for i in range(batch_size):
+        for i in range(len(labels)):
             label = labels[i]
             class_correct[label] += correct[i].item()
             class_total[label] += 1
