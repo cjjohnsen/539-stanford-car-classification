@@ -64,8 +64,8 @@ def save_loss_plot(losses, test_losses, epoch, file_path='./data'):
 
 def save_accuracy_plot(accuracies, test_accuracies, epoch, file_path='./data'):
     plt.figure()
-    plt.plot(losses, color='blue', label='Train Accuracy')
-    plt.plot(test_losses, color='red', label='Test Accuracy')
+    plt.plot(accuracies, color='blue', label='Train Accuracy')
+    plt.plot(test_accuracies, color='red', label='Test Accuracy')
     plt.title('Training and Test Accuracy per Epoch')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
@@ -94,7 +94,7 @@ else:
     test_accuracies = []
     # Loop over the dataset multiple times
 
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20], gamma=0.5)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,50], gamma=0.5)
     for epoch in range(num_epochs):
         running_loss = 0.0
         running_acc = 0.0
