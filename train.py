@@ -33,7 +33,7 @@ if pretrained:
     model = models.efficientnet_b3(weights=models.EfficientNet_B3_Weights.DEFAULT)
 else: 
     model = models.efficientnet_b3(weights=None)
-
+print(model)
 # model.classifier[6] = nn.Linear(4096, n_class)
 model.fc = nn.Linear(512, n_class, bias=False)
 
@@ -45,7 +45,6 @@ if pretrained:
         p.requires_grad = True
     for p in model.layer4.parameters():
        p.requires_grad =True
-print(model)
 model = model.to(device)
 
 updated_paras = list(filter(lambda p: p.requires_grad, model.parameters()))
