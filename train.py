@@ -30,9 +30,9 @@ train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_wo
 n_class = len(classes)
 
 if pretrained: 
-    model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 else: 
-    model = models.alexnet(weights=None)
+    model = models.resnet18(weights=None)
 
 model.classifier[6] = nn.Linear(4096, n_class)
 
