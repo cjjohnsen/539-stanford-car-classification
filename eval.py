@@ -47,6 +47,7 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 
 print("Loading saved model...")
+model = models.resnet18(weights=None)
 model.load_state_dict(torch.load(model_path))
 
 print('Evaluating...')
