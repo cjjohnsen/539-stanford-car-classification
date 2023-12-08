@@ -35,7 +35,7 @@ else:
     model = models.resnet18(weights=None)
 
 # model.classifier[6] = nn.Linear(4096, n_class)
-model.fc = nn.Linear(512, n_class)
+model.fc = nn.Linear(512, n_class, bias=False)
 
 if pretrained:
     for p in model.parameters():
@@ -43,8 +43,8 @@ if pretrained:
     for p in model.fc.parameters():
     # for p in model.classifier.parameters():
         p.requires_grad = True
-    #for p in model.layer4.parameters():
-    #    p.requires_grad =True
+    for p in model.layer1.parameters():
+       p.requires_grad =True
 #print(model)
 model = model.to(device)
 
