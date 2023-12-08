@@ -49,7 +49,7 @@ if pretrained:
 model = model.to(device)
 
 updated_paras = list(filter(lambda p: p.requires_grad, model.parameters()))
-print(updated_paras)
+#print(updated_paras)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(updated_paras, lr=0.002, weight_decay=5e-3)
 #optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=5e-4)
