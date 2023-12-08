@@ -112,7 +112,8 @@ print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
     np.sum(class_correct), np.sum(class_total)))
 
 cm = confusion_matrix(true, preds)
-print(cm)
+with open("confusion_matrix.txt", "w") as f:
+    f.write(cm)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 plt.savefig('./confusion_matrix.png')
