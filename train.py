@@ -40,7 +40,8 @@ model.fc = nn.Linear(512, n_class)
 if pretrained:
     for p in model.parameters():
         p.requires_grad = False
-    for p in model.classifier.parameters():
+    for p in model.fc.parameters():
+    # for p in model.classifier.parameters():
         p.requires_grad = True
 
 model = model.to(device)
