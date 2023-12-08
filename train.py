@@ -46,10 +46,12 @@ if pretrained:
 print(model)
 model = model.to(device)
 
+updated_paras = list(filter(lambda p: p.requires_grad, model.parameters()))
 criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(updated_paras, lr=0.002, weight_decay=5e-4)
 #optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=5e-4)
 #optimizer = optim.SGD(model.parameters(), lr=0.1, weight_decay=5e-4, momentum=0.9)
-optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=5e-4, momentum=0.9)
+#optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=5e-4, momentum=0.9)
 
 num_epochs = 1000 # This can be adjusted
 save_model_every = 10
