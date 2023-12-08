@@ -34,7 +34,8 @@ if pretrained:
 else: 
     model = models.resnet18(weights=None)
 
-model.classifier[6] = nn.Linear(4096, n_class)
+# model.classifier[6] = nn.Linear(4096, n_class)
+model.fc = nn.Linear(512, n_class)
 
 if pretrained:
     for p in model.parameters():
