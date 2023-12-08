@@ -95,7 +95,7 @@ print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
     100. * np.sum(class_correct) / np.sum(class_total),
     np.sum(class_correct), np.sum(class_total)))
 
-cm = confusion_matrix(true, preds, labels=classes)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
+cm = confusion_matrix(true, preds)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 plt.savefig('./confusion_matrix.png')
