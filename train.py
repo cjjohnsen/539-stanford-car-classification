@@ -43,7 +43,7 @@ if pretrained:
     for p in model.fc.parameters():
     # for p in model.classifier.parameters():
         p.requires_grad = True
-
+print(model)
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
