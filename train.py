@@ -43,7 +43,7 @@ if pretrained:
     for p in model.fc.parameters():
     # for p in model.classifier.parameters():
         p.requires_grad = True
-    for p in model.layer4.parameters():
+    for p in model.classifier.parameters():
        p.requires_grad =True
 model = model.to(device)
 
