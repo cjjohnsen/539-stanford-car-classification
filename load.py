@@ -7,7 +7,7 @@ from torchvision import transforms
 def get_data_loaders(data_root, batch_size, num_workers):
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(size=(224, 224), scale=(0.75, 1)),
-        transforms.RandomRotation(degree=30),
+        transforms.RandomRotation(degrees=30),
         transforms.ColorJitter(hue=0.05, saturation=0.05),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
