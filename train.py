@@ -45,7 +45,7 @@ if pretrained:
         p.requires_grad = True
     for p in model.layer4.parameters():
        p.requires_grad =True
-#print(model)
+print(model)
 model = model.to(device)
 
 updated_paras = list(filter(lambda p: p.requires_grad, model.parameters()))
