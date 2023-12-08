@@ -34,8 +34,8 @@ if pretrained:
 else: 
     model = models.efficientnet_b3(weights=None)
 print(model)
-# model.classifier[6] = nn.Linear(4096, n_class)
-model.fc = nn.Linear(512, n_class, bias=False)
+model.classifier[6] = nn.Linear(4096, n_class)
+# model.fc = nn.Linear(512, n_class, bias=False)
 
 if pretrained:
     for p in model.parameters():
