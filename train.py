@@ -43,12 +43,15 @@ if pretrained:
     for p in model.fc.parameters():
     # for p in model.classifier.parameters():
         p.requires_grad = True
-print(model)
+    #for p in model.layer4.parameters():
+    #    p.requires_grad =True
+#print(model)
 model = model.to(device)
 
 updated_paras = list(filter(lambda p: p.requires_grad, model.parameters()))
+print(updated_paras)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(updated_paras, lr=0.002, weight_decay=5e-4)
+optimizer = optim.Adam(updated_paras, lr=0.002, weight_decay=5e-3)
 #optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=5e-4)
 #optimizer = optim.SGD(model.parameters(), lr=0.1, weight_decay=5e-4, momentum=0.9)
 #optimizer = optim.SGD(model.parameters(), lr=0.01, weight_decay=5e-4, momentum=0.9)
