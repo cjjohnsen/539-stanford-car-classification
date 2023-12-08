@@ -30,24 +30,39 @@ batch_size = 64
 workers = 4
 _, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
-if pretrained: 
-    model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
-else: 
-    model = models.alexnet(weights=None)
+# if pretrained: 
+#     model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
+# else: 
+#     model = models.alexnet(weights=None)
 
-model.classifier[6] = nn.Linear(4096, n_class)
+# model.classifier[6] = nn.Linear(4096, n_class)
+
+# if pretrained:
+#     for p in model.parameters():
+#         p.requires_grad = False
+#     for p in model.classifier.parameters():
+#         p.requires_grad = True
+if pretrained: 
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+else: 
+    model = models.resnet18(weights=None)
+
+# model.classifier[6] = nn.Linear(4096, n_class)
+model.fc = nn.Linear(512, n_class, bias=False)
 
 if pretrained:
     for p in model.parameters():
         p.requires_grad = False
-    for p in model.classifier.parameters():
+    for p in model.fc.parameters():
+    # for p in model.classifier.parameters():
         p.requires_grad = True
+    for p in model.layer4.parameters():
+       p.requires_grad =True
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 
 print("Loading saved model...")
-model = models.resnet18(weights=None)
 model.load_state_dict(torch.load(model_path))
 
 print('Evaluating...')
