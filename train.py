@@ -30,9 +30,9 @@ train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_wo
 n_class = len(classes)
 
 if pretrained: 
-    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    model = models.efficientnet_b3(weights=models.EfficientNet_B3_Weights.DEFAULT)
 else: 
-    model = models.resnet18(weights=None)
+    model = models.efficientnet_b3(weights=None)
 
 # model.classifier[6] = nn.Linear(4096, n_class)
 model.fc = nn.Linear(512, n_class, bias=False)
