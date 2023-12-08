@@ -113,7 +113,7 @@ print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
 
 cm = confusion_matrix(true, preds)
 with open("confusion_matrix.txt", "w") as f:
-    f.write(cm)
+    f.write(np.array2string(cm))
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
 plt.savefig('./confusion_matrix.png')
