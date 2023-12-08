@@ -40,9 +40,10 @@ model.fc = nn.Linear(512, n_class, bias=False)
 if pretrained:
     for p in model.parameters():
         p.requires_grad = False
-    for p in model.fc.parameters():
-    # for p in model.classifier.parameters():
-        p.requires_grad = True
+    # for p in model.fc.parameters():
+    # # for p in model.classifier.parameters():
+    #     p.requires_grad = True
+    # for p in model.layer4.parameters():
     for p in model.classifier.parameters():
        p.requires_grad =True
 model = model.to(device)
