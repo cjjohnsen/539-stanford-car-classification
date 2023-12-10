@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from download_data import SC_ZIP_URL, download_and_extract_zip, get_classes_by_make_and_year
 from load import get_data_loaders
+import random
+from torchvision import transforms, datasets
 
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
@@ -20,6 +22,9 @@ if not os.path.exists(model_path):
     print(f"Did not find model at path {model_path}")
     exit(1)
 
+if not os.path.exists('./eval_outputs'):
+    os.system('mkdir eval_outputs')
+
 if not os.path.exists(test_root):
     download_and_extract_zip(SC_ZIP_URL, root)
 
@@ -30,25 +35,13 @@ batch_size = 64
 workers = 4
 _, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
-# if pretrained: 
-#     model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
-# else: 
-#     model = models.alexnet(weights=None)
-
-# model.classifier[6] = nn.Linear(4096, n_class)
-
-# if pretrained:
-#     for p in model.parameters():
-#         p.requires_grad = False
-#     for p in model.classifier.parameters():
-#         p.requires_grad = True
 if pretrained: 
-    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
 else: 
-    model = models.resnet18(weights=None)
+    model = models.resnet34(weights=None)
 
 # model.classifier[6] = nn.Linear(4096, n_class)
-model.fc = nn.Linear(512, n_class, bias=False)
+model.fc = nn.Linear(512, n_class)
 
 if pretrained:
     for p in model.parameters():
@@ -112,9 +105,59 @@ print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
     np.sum(class_correct), np.sum(class_total)))
 
 cm = confusion_matrix(true, preds)
-with open("confusion_matrix.txt", "w") as f:
+with open("./eval_outputs/confusion_matrix.txt", "w") as f:
     np.set_printoptions(threshold=np.inf)
     f.write(np.array2string(cm))
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 disp.plot()
-plt.savefig('./confusion_matrix.png')
+plt.savefig('./eval_outputs/confusion_matrix.png')
+
+# Function to show an image
+def imshow(img):
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    img = img.numpy().transpose((1, 2, 0))
+    img = std * img + mean
+    img = np.clip(img, 0, 1)
+    plt.imshow(img)
+    plt.axis('off')
+
+# Get some random testing images
+test_root = f'./data/car_data/test'
+test_transform = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.CenterCrop(size=224),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+test_dataset = datasets.ImageFolder(
+    root=test_root,
+    transform=test_transform
+)
+
+# Choose 3 random indices
+indices = random.sample(range(len(test_dataset)), 3)
+images = torch.stack([test_dataset[i][0] for i in indices])
+labels = torch.tensor([test_dataset[i][1] for i in indices])
+
+# Move images to the same device as the model
+images = images.to(device)
+
+# Predict classes for these images
+model.eval()
+with torch.no_grad():
+    outputs = model(images)
+_, predicted = torch.max(outputs, 1)
+
+# Plot the images and labels
+fig = plt.figure(figsize=(10, 4))
+for idx, i in enumerate(indices):
+    ax = fig.add_subplot(1, 3, idx+1, xticks=[], yticks=[])
+    imshow(images[idx].cpu())
+    ax.set_title(f'Predicted: {classes[predicted[idx]]}\nActual: {classes[labels[idx]]}')
+
+# Save the figure
+plt.savefig('./eval_outputs/sample_predictions.png')
