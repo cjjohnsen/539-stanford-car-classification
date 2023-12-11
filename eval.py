@@ -36,9 +36,9 @@ workers = 4
 _, test_loader = get_data_loaders(root, batch_size=batch_size, num_workers=workers)
 
 if pretrained: 
-    model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 else: 
-    model = models.resnet34(weights=None)
+    model = models.resnet18(weights=None)
 
 # model.classifier[6] = nn.Linear(4096, n_class)
 model.fc = nn.Linear(512, n_class)
