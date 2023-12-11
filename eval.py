@@ -41,16 +41,16 @@ else:
     model = models.resnet18(weights=None)
 
 # model.classifier[6] = nn.Linear(4096, n_class)
-# model.fc = nn.Linear(512, n_class)
+model.fc = nn.Linear(512, n_class)
 
-# if pretrained:
-#     for p in model.parameters():
-#         p.requires_grad = False
-#     for p in model.fc.parameters():
-#     # for p in model.classifier.parameters():
-#         p.requires_grad = True
-#     for p in model.layer4.parameters():
-#        p.requires_grad =True
+if pretrained:
+    for p in model.parameters():
+        p.requires_grad = False
+    for p in model.fc.parameters():
+    # for p in model.classifier.parameters():
+        p.requires_grad = True
+    for p in model.layer4.parameters():
+       p.requires_grad =True
 
 model = model.to(device)
 criterion = nn.CrossEntropyLoss()
