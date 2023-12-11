@@ -30,9 +30,9 @@ train_loader, test_loader = get_data_loaders(root, batch_size=batch_size, num_wo
 n_class = len(classes)
 
 if pretrained: 
-    model = models.efficientnet_b3(weights=models.EfficientNet_B3_Weights.DEFAULT)
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 else: 
-    model = models.efficientnet_b3(weights=None)
+    model = models.resnet18(weights=None)
 print(model)
 model.classifier[1] = nn.Linear(1536, n_class)
 # model.classifier[6] = nn.Linear(4096, n_class)
@@ -41,11 +41,11 @@ model.classifier[1] = nn.Linear(1536, n_class)
 if pretrained:
     for p in model.parameters():
         p.requires_grad = False
-    # for p in model.fc.parameters():
-    # # for p in model.classifier.parameters():
-    #     p.requires_grad = True
-    # for p in model.layer4.parameters():
-    for p in model.classifier.parameters():
+    for p in model.fc.parameters():
+    # for p in model.classifier.parameters():
+        p.requires_grad = True
+    for p in model.layer4.parameters():
+    # for p in model.classifier.parameters():
        p.requires_grad =True
 model = model.to(device)
 
