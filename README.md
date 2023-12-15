@@ -4,6 +4,7 @@ Our dataset does not fit into a GitHub repository, so it must first be downloade
 ## How to update the download link
 In order to attain a download link, you must first go to the Kaggle dataset page: 
 https://www.kaggle.com/datasets/jutrera/stanford-car-dataset-by-classes-folder/code
+
 Then, inspect element and go to the Network tab: 
 ![Alt text](<Screenshot 2023-12-14 at 11.11.39 PM.png>)
 
